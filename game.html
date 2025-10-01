@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta name = "viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel = "stylesheet" href = "">
+</head>
+<body>
+	<input type="button" value="Very useful button" onclick="name_gen(3)">
+    <script>
+		class bot{
+			constructor(name,money,difficulty){
+				this.name = name;
+				this.money = money;
+				this.difficulty = difficulty
+			}
+			get_money(){
+				return this.money
+			}
+			get_name(){
+				return this.name
+			}
+			gamble(round_num,priv_coins,public_coins){
+				if (round_num = 1){
+					if (priv_coins === "hh" || "tt"){
+						console.log(money/difficulty*Math.random())
+						return (money/difficulty*Math.random())
+					}
+				}
+
+				else{
+						
+				}
+			}
+			buyin_pay(buyin_cost){
+				if (money > buyin_cost){
+					return `${this.name} paid`
+				}
+				else{
+					//KILL Bot instance and leave table 
+					return `${this.name} ran out of money and left the table`
+				}
+			}
+		}
+
+        function Coin_Flip(){
+            let rand_num = Math.random()
+            if (rand_num <= 0.5){
+				console.log("heads");
+				return "heads"
+            }
+            else{
+				console.log("tails");
+				return "tails"
+            }
+        }
+
+		function name_gen(num_of_names){
+			const names =["Alice", "Bob", "Charlie", "David", "Emma", "Frank",
+			"Grace", "Henry", "Isabella", "Jack", "Olivia", "William","Luke","Oliver","Harry"];
+			console.log(num_of_names)
+			for (let i= 0; i < num_of_names; i++){
+				console.log(names[int(Math.floor(Math.random() * firstNames.length))])
+			}
+		}
+
+		function Game(player_count,buyin_cost){
+			//fix me
+			running = True
+			for (let i= 0; i > player_count; i++)
+				rando
+				bot
+			while (running){
+				if (bot_num != 0){
+					let player_money = player_money - buyin_cost
+				}
+			}
+		}
+    </script>
+</body>
+</html>
