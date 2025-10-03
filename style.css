@@ -1,0 +1,7 @@
+body {
+  overflow: hidden;
+  border: none;
+}
+canvas{
+    border: 0;
+}

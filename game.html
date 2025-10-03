@@ -3,11 +3,15 @@
 <head>
     <meta name = "viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel = "stylesheet" href = "">
+    <link rel = "stylesheet" href = "style.css">
 </head>
 <body>
-	<input type="button" value="Very useful button" onclick="name_gen(3)">
-    <script>
+	<canvas id="game_window" width="640" height="360"></canvas>
+	<script>
+		const canvas = document.getElementById("game_window")
+		const ctx = canvas.getContext("2d")
+		canvas.width = window.innerWidth
+		canvas.height = window.innerHeight
 		class bot{
 			constructor(name,money,difficulty){
 				this.name = name;
@@ -22,14 +26,14 @@
 			}
 			gamble(round_num,priv_coins,public_coins){
 				if (round_num = 1){
-					if (priv_coins === "hh" || "tt"){
+					if (priv_coins === "hh" ||priv_coins === "tt"){
 						console.log(money/difficulty*Math.random())
 						return (money/difficulty*Math.random())
 					}
 				}
 
 				else{
-						
+					console.log("S")
 				}
 			}
 			buyin_pay(buyin_cost){
@@ -66,16 +70,70 @@
 
 		function Game(player_count,buyin_cost){
 			//fix me
-			running = True
-			for (let i= 0; i > player_count; i++)
-				rando
-				bot
-			while (running){
-				if (bot_num != 0){
-					let player_money = player_money - buyin_cost
+				
+				running = True
+				for (let i= 0; i > player_count; i++)
+					rando
+					bot
+				while (running){
+					if (bot_num != 0){
+						let player_money = player_money - buyin_cost
+					}
 				}
+		}
+
+		
+		//function hand_check(hand){
+			//for (let i= 0; i > player_count; i++)
+		
+		//}
+		function exitGame(){
+			window.location.href = 'index.html'
+		}
+		function draw_main_menu(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			const backgroundImage = new Image();
+    		backgroundImage.src = 'menu.png';
+			backgroundImage.onload = function() {
+				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
+			};
+			const menuItems = [
+				{ text: 'New Game', sprite: playButtonSprite, x: 100, y: 150, action: startGame },
+				{ text: 'Quit', sprite: exitButtonSprite, x: 100, y: 250, action: exitGame() }
+    		];
+		}
+		
+		function main_loop(){
+			if (localStorage.getItem('Gems') === null){
+				console.log("Gems reset to default amount")
+				localStorage.setItem("Gems", 200);
+			}else{
+				console.log(localStorage.getItem('Gems'))
+			}
+			// clear the canvas when called
+			gamestate = "main_menu"
+			draw_main_menu()
+			window.addEventListener('keydown', function(event) {
+				if (event.key === 'Q'||'q') {
+					console.log("Leave page")
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					window.location.href = 'index.html';
+				}
+			});
+			if (gamestate === "main_menu"){
+				draw_main_menu()
+				
+
+			}
+			else if (gamestate === "game"||gamestate === "playing"){
+				Game(4,12)
+			}
+			else{
+				draw_bug_screen()
 			}
 		}
+		onload(main_loop())
     </script>
+	
 </body>
 </html>
