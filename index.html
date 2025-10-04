@@ -8,15 +8,24 @@
 </head>
 <body>
     <i id= "home"></i>
-    <button>Thing</button>
+    <button onclick= "test()">Thing </button>
+    <script>
+        function test(){
+            document.addEventListener('keydown', function(event) {
+            if (event.key === 'Q'||'q') {
+                        console.log("Leave page")
+                        window.location.href = 'game.html';
+                    }
+            });
+        }
+    </script>
+    
     <h1>Rules for Heads Up Holdem</h1>
 
-    There are 6 diffrent hand types which are numbered below (1 is worst and 10 best)
+    There are 4 diffrent hand types which are numbered below (Ordered from worst hand type to best)
     <ol>
-        <li>Double (2 heads or 2 tails)</li>
-        <li>Triple threat (3 heads or 3 tails )</li>
-        <li>Quad  (4 of the same type)</li>
         <li>Split (3 of each)</li>
+        <li>Quad  (4 of the same type)</li>
         <li>Five Frenzy (5 of the same type)</li>
         <li>Flip Storm (6 of the same type)</li>
     </ol>
@@ -30,7 +39,8 @@
         <li>The dealer then flips 2 coins community coins.</li>
         <li>A second betting round occurs (starting on the dealer). In a clockwise order players can raise, match or fold. (Players must all match the bet or can fold)</li>
         <li>The dealer then flips the final 2 coins community coins.></li> 
-        <li>All personal coins are revealed and player with best hand type wins (If players tie on a hand the pot is split equally between all)</li>
+        <li> Just count your heads and tails and use your highest number</li>
+        <li>All personal coins are revealed and player with best hand type wins (If players tie on a hand, heads triumph over tails if there is still a tie then the pot is split equally between all)</li>
     </ol>
 </body>
 </html>

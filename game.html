@@ -25,7 +25,7 @@
 				return this.name
 			}
 			gamble(round_num,priv_coins,public_coins){
-				if (round_num = 1){
+				if (round_num === 1){
 					if (priv_coins === "hh" ||priv_coins === "tt"){
 						console.log(money/difficulty*Math.random())
 						return (money/difficulty*Math.random())
@@ -33,7 +33,7 @@
 				}
 
 				else{
-					console.log("S")
+					console.log("filler")
 				}
 			}
 			buyin_pay(buyin_cost){
@@ -41,53 +41,89 @@
 					return `${this.name} paid`
 				}
 				else{
-					//KILL Bot instance and leave table 
+					//KILL Bot instance and leave table
+					bot_leave_anim()
+					clearInterval(); 
 					return `${this.name} ran out of money and left the table`
 				}
 			}
 		}
+		function bot_leave_anim(){
 
-        function Coin_Flip(){
-            let rand_num = Math.random()
-            if (rand_num <= 0.5){
-				console.log("heads");
-				return "heads"
-            }
-            else{
-				console.log("tails");
-				return "tails"
-            }
+		}
+        function Coin_Flip(count){
+			for (let i= 0; i < count; i++){
+				let rand_num = Math.random();
+				if (rand_num <= 0.5){
+					console.log("heads");
+					return "heads"
+				}
+				else{
+					console.log("tails");
+					return "tails"
+				}
+			}
         }
 
 		function name_gen(num_of_names){
-			const names =["Alice", "Bob", "Charlie", "David", "Emma", "Frank",
-			"Grace", "Henry", "Isabella", "Jack", "Olivia", "William","Luke","Oliver","Harry"];
-			console.log(num_of_names)
-			for (let i= 0; i < num_of_names; i++){
-				console.log(names[int(Math.floor(Math.random() * firstNames.length))])
-			}
+			// got a big ass list of random names and put some  fun ones in 
+			const names = [
+			"Liam", "Emma", "Noah", "Olivia", "Ava", "Elijah", "Sophia", "Lucas", "Isabella", "Mason",
+			"Mia", "Ethan", "Charlotte", "Logan", "Amelia", "James", "Harper", "Benjamin", "Evelyn", "Jacob",
+			"Abigail", "Michael", "Ella", "Alexander", "Scarlett", "Henry", "Grace", "Jackson", "Chloe", "Sebastian",
+			"Luna", "Aiden", "Layla", "Matthew", "Aria", "Samuel", "Zoey", "David", "Nora", "Joseph",
+			"Levi", "Hazel", "Owen", "Lily", "Wyatt", "Ellie", "John", "Aurora", "Daniel",
+			"Gabriel", "Penelope", "Carter", "Victoria", "Jayden", "Hannah", "Luke", "Stella", "Anthony",
+			"Isaac", "Savannah", "Grayson", "Brooklyn", "Julian", "Bella", "Lincoln", "Claire", "Nathan", "Skylar",
+			"Christian", "Lucy", "Hunter", "Anna", "Connor", "Violet", "Aaron", "Charles", "Alice",
+			// Weird but cool names
+			"Blade", "Shadow", "Nova", "Onyx", "Echo", "Genesis"
+			];
+			const shuffled = names.sort(() => 0.5 - Math.random());
+			return shuffled.slice(0, num_of_names);
 		}
 
 		function Game(player_count,buyin_cost){
 			//fix me
-				
 				running = True
-				for (let i= 0; i > player_count; i++)
-					rando
-					bot
+				bot_names = name_gen(player_count)
+				let bot = []
+				for (let i= 0; i > player_count; i++){
+					let temp_bot = new bot(name_gen[i])
+					bot.push(temp_bot)
+				}
 				while (running){
 					if (bot_num != 0){
 						let player_money = player_money - buyin_cost
 					}
 				}
+			
 		}
 
 		
-		//function hand_check(hand){
-			//for (let i= 0; i > player_count; i++)
-		
-		//}
+		function hand_check(hand){
+			// example hand (make sure its six total) = ["h","t","h","t","h","t"]
+
+			const heads_count = hand.filter(item => item === "h").length;
+			const tails_count = hand.filter(item => item === "t").length;
+			console.log(tails_count)
+			console.log(heads_count)
+			if (heads_count === tails_count){
+				return "split"
+			}else if (heads_count === 4|| tails_count ===4){
+				return "Quad"
+			} else if (heads_count === 5|| tails_count === 5){
+				return "Five Frenzy"
+			} else if (heads_count === 6||tails_count === 6 )
+				return "Flipstorm"
+		}
+		function tie_break(tied_players){
+			
+			//logic to go here
+		}
+
 		function exitGame(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			window.location.href = 'index.html'
 		}
 		function draw_main_menu(){
@@ -98,9 +134,15 @@
 				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
 			};
 			const menuItems = [
-				{ text: 'New Game', sprite: playButtonSprite, x: 100, y: 150, action: startGame },
+				{ text: 'Play', sprite: playButtonSprite, x: 100, y: 150, action: startGame },
 				{ text: 'Quit', sprite: exitButtonSprite, x: 100, y: 250, action: exitGame() }
     		];
+		}
+		function draw_rules_popup(){
+			console.log("filler")
+		}
+		function draw_game(){
+			console.log("filler")
 		}
 		
 		function main_loop(){
@@ -111,28 +153,33 @@
 				console.log(localStorage.getItem('Gems'))
 			}
 			// clear the canvas when called
+			
 			gamestate = "main_menu"
 			draw_main_menu()
-			window.addEventListener('keydown', function(event) {
-				if (event.key === 'Q'||'q') {
-					console.log("Leave page")
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					window.location.href = 'index.html';
-				}
-			});
+			
+			
 			if (gamestate === "main_menu"){
 				draw_main_menu()
-				
 
 			}
 			else if (gamestate === "game"||gamestate === "playing"){
 				Game(4,12)
+				draw_rules_popup()
 			}
 			else{
 				draw_bug_screen()
 			}
 		}
-		onload(main_loop())
+		window.onload = function(){
+			console.log(name_gen(20))
+			window.addEventListener('keydown', function(event) {
+				if (event.key === 'esc') {
+					console.log("Leave page")
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					window.location.href = 'index.html';
+				}
+				});
+		}
     </script>
 	
 </body>
