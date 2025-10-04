@@ -1,10 +1,12 @@
 body {
   overflow: hidden;
   border: none;
+  margin: 0;
+  padding: 0;
 }
 canvas{
   image-rendering: pixelated;
-  border: 1;
+  border: none;
 }
 #start_button {
   top: 35%;
@@ -39,3 +41,21 @@ canvas{
   line-height: 80px;
   cursor: pointer;
 }
+
+#understand_rules{
+  top: 80%;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 60px;
+  color: #f7ba47;
+  background-color: #497425;
+  border: none;
+  width: 95%;
+  height: 150px;
+  text-align: center;
+  line-height: 80px;
+  cursor: pointer;
+}
+

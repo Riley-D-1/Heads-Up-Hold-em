@@ -4,15 +4,16 @@
     <meta name = "viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <link rel = "stylesheet" href = "style.css">
 </head>
 <body>
 	<canvas id="game_window" width="640" height="360"></canvas>
 	<div id="menu_buttons">
-		<button id = "start_button" onclick="game(4,5)">Start</button>
+		<button id = "start_button" onclick="start_game(4,6)">Start</button>
 		<button id= "quit_button" onclick="quit_game()">Quit</button>
+		<button id="understand_rules" onclick="game_loop()">I understand all the rules and am ready to play</button>
 	</div>
 	<script>
 		const canvas = document.getElementById("game_window")
@@ -38,7 +39,6 @@
 						return (money/difficulty*Math.random())
 					}
 				}
-
 				else{
 					console.log("filler")
 				}
@@ -90,28 +90,32 @@
 			return shuffled.slice(0, num_of_names);
 		}
 
-		function game(player_count,buyin_cost){
+		function start_game(player_count,buyin_cost){
 			//fix me
-				if (localStorage.getItem('Gems') === null){
-					console.log("Gems reset to default amount")
-					localStorage.setItem("Gems", 200);
-				}else{
-					console.log(localStorage.getItem('Gems'))
+				if (localStorage.getItem('Money') === null){
+					console.log("Money reset to default amount")
+					localStorage.setItem("Money", 200);
+					console.log(localStorage.getItem('Money'))
+				}else if(localStorage.getItem('Money') < 6){
+					alert("Hey, you ran out of money. Lucky its not real money! You're reset to 200 Money")
+					localStorage.setItem("Money", 200)
 				}
-				draw_gems()
-				running = True
+				else{
+					console.log(localStorage.getItem('Money'))
+				}
 				bot_names = name_gen(player_count)
 				let bot = []
 				for (let i= 0; i > player_count; i++){
 					let temp_bot = new bot(name_gen[i])
 					bot.push(temp_bot)
 				}
-				while (running){
-					if (bot_num != 0){
-						let player_money = player_money - buyin_cost
-					}
-				}
 				draw_rules_popup()
+				return bot
+				
+				
+				
+				
+				
 			
 		}
 		function quit_game(){
@@ -138,6 +142,7 @@
 			}
 		}
 		function tie_break(tied_players){
+
 			// how to do this i wonder
 			//logic to go here
 		}
@@ -147,24 +152,74 @@
 			window.location.href = 'index.html'
 		}
 		function draw_main_menu(){
+			understand_rules.style.display = 'none';
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			const backgroundImage = new Image();
     		backgroundImage.src = 'menu.png';
 			backgroundImage.onload = function() {
 				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
 			};
-
 		}
 		function draw_rules_popup(){
-			console.log("filler")
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			start_button.style.display = 'none';
+			quit_button.style.display = 'none';
+			understand_rules.style.display = 'block';
+			ctx.fillStyle = '#497425'
+			ctx.fillRect(0, 0, canvas.width, canvas.height); 
+			ctx.font = '50px Pixelify Sans'
+			ctx.fillStyle = '#f7ba47'
+			ctx.textAlign = "center"
+			ctx.fillText("Rules for Heads Up Hold'em", canvas.width / 2, 120);
+			ctx.font = '20px Pixelify Sans'
+			const rules = [
+			"There are 4 different hand types, ordered from worst to best:",
+			"1. Split (3 of each)",
+			"2. Quad (4 of the same type)",
+			"3. Five Frenzy (5 of the same type)",
+			"4. Flip Storm (6 of the same type)",
+			"Gameplay Rules",
+			"- Player pays the buy-in fee (Costs 6 Money atm)",
+			"- Each player flips their 2 private coins.",
+			"- Dealer is randomly selected.",
+			"- The dealer starts the first betting round. In a clockwise order, players can raise, match, or fold. (Players must all match the bet and can raise it further to continue playing or fold.)",
+			"- The dealer flips 2 community coins.",
+			"- second betting round occurs (starting with the dealer). In a clockwise order, players can raise, match, or fold. (Players must all match the bet or fold.)",
+			"- The dealer flips the final 2 community coins.",
+			"- Count your heads and tails and use your highest number.",
+			"- All personal coins are revealed. The player with the best hand type wins. (If players tie on a hand, heads triumph over tails. If there is still a tie, the pot is split equally.)"
+			];
+			ctx.textAlign = "left"
+			rules.forEach((rule, i) => {
+				ctx.fillText(rule, 10, 180 + i * 30);
+			});
+			console.log("drawn instructions popup")
+
 		}
 		function draw_game(){
-			console.log("filler")
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			start_button.style.display = 'none';
+			quit_button.style.display = 'none';
+			understand_rules.style.display = 'none';
+			ctx.fillStyle = '#497425'
+			ctx.fillRect(0, 0, canvas.width, canvas.height); 
+			ctx.font = '20px Pixelify Sans'
+			ctx.fillStyle = '#f7ba47'
+			payin_coins.onload = function() {
+				ctx.drawImage(payin_coins,0, 0, canvas.width, canvas.height );
+			};
+			console.log(" drawn")
+
 		}
-		
+		function game_loop(player_money){
+			while (player_money > 0 && bot_num > 0){
+				draw_game();
+			}
+		}
 		window.onload = function(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			draw_main_menu()
+
 		}
     </script>
 </body>
