@@ -11,7 +11,7 @@
 <body>
 	<canvas id="game_window" width="640" height="360"></canvas>
 	<div id="menu_buttons">
-		<button id = "start_button" onclick="start_game(4,6)">Start</button>
+		<button id = "start_button" onclick="draw_rules_popup()">Start</button>
 		<button id= "quit_button" onclick="quit_game()">Quit</button>
 		<button id="understand_rules" onclick="game_loop()">I understand all the rules and am ready to play</button>
 	</div>
@@ -32,10 +32,19 @@
 			get_name(){
 				return this.name
 			}
-			gamble(round_num,priv_coins,public_coins){
+			flip_own_coins(){
+				this.priv_coins = Coin_Flip(2)
+			}
+			gamble(round_num,public_coins){
+				//expand upon (going to keep it simple with a randomised algo suign if statements and math.random)
 				if (round_num === 1){
-					if (priv_coins === "hh" ||priv_coins === "tt"){
+					if (this.priv_coins === "hh" ||this.priv_coins === "tt"){
 						console.log(money/difficulty*Math.random())
+						return (money/difficulty*Math.random())
+					}
+					else{
+						//if money
+						console.log(money/difficultyMath.random())
 						return (money/difficulty*Math.random())
 					}
 				}
@@ -56,23 +65,26 @@
 			}
 		}
 		function bot_leave_anim(){
-
+			console.log("filler")
 		}
+
         function Coin_Flip(count){
+			// this is done :)
+			let temp_flipped_coins = []
 			for (let i= 0; i < count; i++){
 				let rand_num = Math.random();
 				if (rand_num <= 0.5){
-					console.log("heads");
-					return "heads"
+					temp_flipped_coins.push("h")
 				}
 				else{
-					console.log("tails");
-					return "tails"
+					temp_flipped_coins.push("t")
 				}
 			}
+			return temp_flipped_coins
         }
 
 		function name_gen(num_of_names){
+			// This one is done too
 			// got a big ass list of random names and put some  fun ones in 
 			const names = [
 			"Liam", "Emma", "Noah", "Olivia", "Ava", "Elijah", "Sophia", "Lucas", "Isabella", "Mason",
@@ -92,38 +104,35 @@
 
 		function start_game(player_count,buyin_cost){
 			//fix me
-				if (localStorage.getItem('Money') === null){
-					console.log("Money reset to default amount")
-					localStorage.setItem("Money", 200);
-					console.log(localStorage.getItem('Money'))
-				}else if(localStorage.getItem('Money') < 6){
-					alert("Hey, you ran out of money. Lucky its not real money! You're reset to 200 Money")
-					localStorage.setItem("Money", 200)
-				}
-				else{
-					console.log(localStorage.getItem('Money'))
-				}
-				bot_names = name_gen(player_count)
-				let bot = []
-				for (let i= 0; i > player_count; i++){
-					let temp_bot = new bot(name_gen[i])
-					bot.push(temp_bot)
-				}
-				draw_rules_popup()
-				return bot
-				
-				
-				
-				
-				
-			
+			if (localStorage.getItem('Money') === null){
+				console.log("Money reset to default amount")
+				localStorage.setItem("Money", 200);
+				console.log(localStorage.getItem('Money'))
+			}else if(localStorage.getItem('Money') < 6){
+				alert("Hey, you ran out of money. Lucky its not real money! You're reset to 200 Money")
+				localStorage.setItem("Money", 200)
+			}
+			else{
+				console.log(localStorage.getItem('Money'))
+			}
+			let player_money = localStorage.getItem('Money')
+			if (localStorage.getItem('Money')> buyin_cost){
+				localStorage.setItem('Money',player_money- buyin_cost) 
+			}
+			bot_names = name_gen(player_count)
+			let bot_list = []
+			console.log(player_count)
+			for (let i = 0; i < player_count; i++){
+				let temp_bot = new bot(bot_names[i],200,Math.random())
+				bot_list.push(temp_bot)
+			}
+			return bot_list	
 		}
 		function quit_game(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			window.location.href = 'index.html';
 		}
 		function hand_check(hand){
-			// example hand (make sure its six total) = ["h","t","h","t","h","t"]
-
 			const heads_count = hand.filter(item => item === "h").length;
 			const tails_count = hand.filter(item => item === "t").length;
 			console.log(tails_count)
@@ -138,29 +147,28 @@
 				return "Flipstorm"
 			}
 			else{
-				return "Error, not valid handtype"
+				return "Error, not valid handtype just yet"
 			}
 		}
 		function tie_break(tied_players){
-
+			//if tied_players ==="player"{
+				
+			//}//check ifincludes player
 			// how to do this i wonder
 			//logic to go here
 		}
 
-		function exitGame(){
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			window.location.href = 'index.html'
-		}
 		function draw_main_menu(){
 			understand_rules.style.display = 'none';
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			const backgroundImage = new Image();
-    		backgroundImage.src = 'menu.png';
+    		backgroundImage.src = 'pixel_asets/menu.png';
 			backgroundImage.onload = function() {
 				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
 			};
 		}
 		function draw_rules_popup(){
+			// Done i think
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			start_button.style.display = 'none';
 			quit_button.style.display = 'none';
@@ -182,10 +190,8 @@
 			"- Player pays the buy-in fee (Costs 6 Money atm)",
 			"- Each player flips their 2 private coins.",
 			"- Dealer is randomly selected.",
-			"- The dealer starts the first betting round. In a clockwise order, players can raise, match, or fold. (Players must all match the bet and can raise it further to continue playing or fold.)",
-			"- The dealer flips 2 community coins.",
-			"- second betting round occurs (starting with the dealer). In a clockwise order, players can raise, match, or fold. (Players must all match the bet or fold.)",
-			"- The dealer flips the final 2 community coins.",
+			"- The dealer starts the betting round. In a clockwise order, players can raise, match, or fold. (Players must all match the bet and can raise it further to continue playing or fold.)",
+			"- The dealer flips 4 community coins.",
 			"- Count your heads and tails and use your highest number.",
 			"- All personal coins are revealed. The player with the best hand type wins. (If players tie on a hand, heads triumph over tails. If there is still a tie, the pot is split equally.)"
 			];
@@ -196,7 +202,9 @@
 			console.log("drawn instructions popup")
 
 		}
+
 		function draw_game(){
+			// MAjor work needed
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			start_button.style.display = 'none';
 			quit_button.style.display = 'none';
@@ -205,22 +213,49 @@
 			ctx.fillRect(0, 0, canvas.width, canvas.height); 
 			ctx.font = '20px Pixelify Sans'
 			ctx.fillStyle = '#f7ba47'
+			const payin_coins = "pixel_asets/payin_coins.png"
 			payin_coins.onload = function() {
 				ctx.drawImage(payin_coins,0, 0, canvas.width, canvas.height );
 			};
+			// Need to add coin counter in top left
+			// Need to add bet counter
+			// Best hand atm thing (to make it easier for new players)
 			console.log(" drawn")
 
 		}
-		function game_loop(player_money){
-			while (player_money > 0 && bot_num > 0){
-				draw_game();
-			}
+		//function anim_flip(vaule,my_hand){
+		//	console.log(vaule)
+		//	if (vaule === own){
+		//		the
+		//	}
+		//}
+		function game_loop(){
+			// game logic fix needed
+			console.log(start_game(4,6))
+			console.log("test of game loop")
+			draw_game();
+			//	draw_game();
+			//	console.log("test2")
+			//}
+
+			let my_hand = (Coin_Flip(2))
+			//anim_flip("my_hand")
+			console.log(my_hand)
+			//betting function
+			const community_coins = Coin_Flip(4)
+			//anim flip community coins_first
+			console.log(community_coins)
 		}
 		window.onload = function(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			draw_main_menu()
+			const audio = new Audio('music/Get_After_It.ogg');
+			//holy crap my ears when editing
+			// make sure to remove comment below for music :)
+			//audio.play()
 
 		}
+		
     </script>
 </body>
 </html>
