@@ -3,5 +3,39 @@ body {
   border: none;
 }
 canvas{
-    border: 0;
+  image-rendering: pixelated;
+  border: 1;
+}
+#start_button {
+  top: 35%;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 60px;
+  color: #f7ba47;
+  background-color: #497425;
+  border: none;
+  width: 300px;
+  height: 80px;
+  text-align: center;
+  line-height: 80px;
+  cursor: pointer;
+}
+
+#quit_button {
+  top: 55%;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 60px;
+  color: #f7ba47;
+  background-color: #497425;
+  border: none;
+  width: 300px;
+  height: 80px;
+  text-align: center;
+  line-height: 80px;
+  cursor: pointer;
 }

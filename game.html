@@ -3,10 +3,17 @@
 <head>
     <meta name = "viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <link rel = "stylesheet" href = "style.css">
 </head>
 <body>
 	<canvas id="game_window" width="640" height="360"></canvas>
+	<div id="menu_buttons">
+		<button id = "start_button" onclick="game(4,5)">Start</button>
+		<button id= "quit_button" onclick="quit_game()">Quit</button>
+	</div>
 	<script>
 		const canvas = document.getElementById("game_window")
 		const ctx = canvas.getContext("2d")
@@ -83,8 +90,15 @@
 			return shuffled.slice(0, num_of_names);
 		}
 
-		function Game(player_count,buyin_cost){
+		function game(player_count,buyin_cost){
 			//fix me
+				if (localStorage.getItem('Gems') === null){
+					console.log("Gems reset to default amount")
+					localStorage.setItem("Gems", 200);
+				}else{
+					console.log(localStorage.getItem('Gems'))
+				}
+				draw_gems()
 				running = True
 				bot_names = name_gen(player_count)
 				let bot = []
@@ -97,10 +111,12 @@
 						let player_money = player_money - buyin_cost
 					}
 				}
+				draw_rules_popup()
 			
 		}
-
-		
+		function quit_game(){
+			window.location.href = 'index.html';
+		}
 		function hand_check(hand){
 			// example hand (make sure its six total) = ["h","t","h","t","h","t"]
 
@@ -114,11 +130,15 @@
 				return "Quad"
 			} else if (heads_count === 5|| tails_count === 5){
 				return "Five Frenzy"
-			} else if (heads_count === 6||tails_count === 6 )
+			} else if (heads_count === 6||tails_count === 6 ){
 				return "Flipstorm"
+			}
+			else{
+				return "Error, not valid handtype"
+			}
 		}
 		function tie_break(tied_players){
-			
+			// how to do this i wonder
 			//logic to go here
 		}
 
@@ -133,10 +153,7 @@
 			backgroundImage.onload = function() {
 				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
 			};
-			const menuItems = [
-				{ text: 'Play', sprite: playButtonSprite, x: 100, y: 150, action: startGame },
-				{ text: 'Quit', sprite: exitButtonSprite, x: 100, y: 250, action: exitGame() }
-    		];
+
 		}
 		function draw_rules_popup(){
 			console.log("filler")
@@ -145,42 +162,10 @@
 			console.log("filler")
 		}
 		
-		function main_loop(){
-			if (localStorage.getItem('Gems') === null){
-				console.log("Gems reset to default amount")
-				localStorage.setItem("Gems", 200);
-			}else{
-				console.log(localStorage.getItem('Gems'))
-			}
-			// clear the canvas when called
-			
-			gamestate = "main_menu"
-			draw_main_menu()
-			
-			
-			if (gamestate === "main_menu"){
-				draw_main_menu()
-
-			}
-			else if (gamestate === "game"||gamestate === "playing"){
-				Game(4,12)
-				draw_rules_popup()
-			}
-			else{
-				draw_bug_screen()
-			}
-		}
 		window.onload = function(){
-			console.log(name_gen(20))
-			window.addEventListener('keydown', function(event) {
-				if (event.key === 'esc') {
-					console.log("Leave page")
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					window.location.href = 'index.html';
-				}
-				});
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			draw_main_menu()
 		}
     </script>
-	
 </body>
 </html>
