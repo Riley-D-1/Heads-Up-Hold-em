@@ -94,9 +94,8 @@
 			gamble(curr_bet){
 				let risk_lvl = Math.floor(this.difficulty*10)
 				this.difficulty = Math.random()
-				
 				if (this.priv_coins === "hh" ||this.priv_coins === "tt"){
-					if (this.money > curr_bet){
+					if (money > curr_bet){
 						this.money-=curr_bet
 						update_status("Bet")
 					}
@@ -105,7 +104,7 @@
 						fold(this.name)
 						update_status("Folded")
 					} else {
-						if (this.money > curr_bet){
+						if (money > curr_bet){
 							this.money-=curr_bet
 							update_status("Bet")
 						}else{
@@ -243,6 +242,8 @@
 					final_winners.push(player);
 				}
 			});
+
+			// Split pot
 			const payout = pot / final_winners.length;
 			final_winners.forEach(p => p.pay(payout));
 			return final_winners;
@@ -312,7 +313,7 @@
 
 		}
 
-		function draw_game(player_list,priv_coins,community_coins_check,community_coins){
+		function draw_game(player_list,priv_coins,community_coins){
 			// MAjor work needed
 			console.log("drawing")
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -362,43 +363,43 @@
 			ctx.fillStyle = '#ffffff'
 			ctx.fillText("Priv Coins",canvas.width/ 2,625)
 			if (priv_coins === "yes") {
-				const coins = you.get_priv_coins();
+				const userPlayer = you;
+				const coins = userPlayer.get_priv_coins();
+				console.log(coins)
 				const coinSize = 32;
 				const spacing = 36;
-				const boxX = (canvas.width - 400) / 2;
-				const boxY = 650;
-				const boxWidth = 400;
-				const boxHeight = 150;
+				const x = canvas.width / 2 - (2 * spacing) / 2;
+				const y = 300;
 
-				const x = boxX + (boxWidth - coins.length * spacing) / 2;
-				const y = boxY + (boxHeight - coinSize) / 2;
-
-				for (let i = 0; i < coins.length; i++) {
-					const coin = coins[i];
+				for (let i = 0; i < 2; i++) {
+					const coin = community_coins[i];
 					const img = new Image();
-					img.src = coin === "h" ? 'assets/heads.png' : 'assets/tails.png';
-					img.onload = () => {
+					if (coin === "h") {
+						img.src = 'assets/heads.png';
+					} else {
+						img.src = 'assets/tails.png';
+					}
+					img.onload = function() {
 						ctx.drawImage(img, x + i * spacing, y, coinSize, coinSize);
 					};
 				}
 			}
 
-			if (community_coins_check==="yes") {
+			if (Array.isArray(community_coins)) {
 				const coinSize = 32;
 				const spacing = 36;
-				const boxX = (canvas.width - 700) / 2;
-				const boxY = (canvas.height - 500) / 2;
-				const boxWidth = 700;
-				const boxHeight = 150;
-
-				const x = boxX + (boxWidth - community_coins.length * spacing) / 2;
-				const y = boxY + (boxHeight - coinSize) / 2;
+				const x = canvas.width / 2 - (community_coins.length * spacing) / 2;
+				const y = canvas.height / 2 + 100;
 
 				for (let i = 0; i < community_coins.length; i++) {
-					let coin = community_coins[i];
-					let img = new Image();
-					img.src = coin === "h" ? 'assets/heads.png' : 'assets/tails.png';
-					img.onload = () => {
+					const coin = community_coins[i];
+					const img = new Image();
+					if (coin === "h") {
+						img.src = 'assets/heads.png';
+					} else {
+						img.src = 'assets/tails.png';
+					}
+					img.onload = function() {
 						ctx.drawImage(img, x + i * spacing, y, coinSize, coinSize);
 					};
 				}
@@ -500,16 +501,16 @@
 			const audio = new Audio('music/Get_After_It.ogg');
 			audio.play()
 			let player_list = start_game(3,6)
-			draw_game(player_list,"no","no");
+			draw_game(player_list,"no",["no"]);
 			you.flip_own_coins()
 			anim_flip()
 			setTimeout(() => {
-				draw_game(player_list, "yes","no")
+				draw_game(player_list, "yes", ["no"])
 				gamble(player_list)
 				const community_coins = Coin_Flip(4)
 				anim_flip()
 				setTimeout(() => {
-					draw_game(player_list, "yes",community_coins );
+					draw_game(player_list, "yes", community_coins);
 					const pot = 24
 					let winners = evaluate_hands(player_list, community_coins);
 
