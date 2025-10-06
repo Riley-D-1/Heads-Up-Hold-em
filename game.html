@@ -6,6 +6,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/gifler@0.1.0/gifler.min.js"></script>
     <link rel = "stylesheet" href = "style.css">
 </head>
 <body>
@@ -16,18 +17,20 @@
 		<button id="understand_rules" onclick="game_loop()">I understand all the rules and am ready to play</button>
 	</div>
 	<div id = "bet_buttons">
-		<button id="bet" onclick="bet()">Bet</button>
+		<button id="bet" onclick="you.bet()">Bet</button>
+		<button id = "fold" onclick ="you.fold()">Fold</button>
 	</div>
 	<script>
+		let you = localStorage.getItem("You")
 		const canvas = document.getElementById("game_window")
 		const ctx = canvas.getContext("2d")
 		canvas.width = window.innerWidth
 		canvas.height = window.innerHeight
-		class bot{
-			constructor(name,money,difficulty){
+		class player{
+			constructor(name,money){
 				this.name = name;
 				this.money = money;
-				this.difficulty = difficulty
+				this.status = "Loading";
 			}
 			get_money(){
 				return this.money
@@ -37,22 +40,77 @@
 			}
 			flip_own_coins(){
 				this.priv_coins = Coin_Flip(2)
+				anim_flip()
+			}
+			get_status(){
+				return this.status
+			}
+			update_status(status){
+				this.status = status
+			}
+			fold(player_name){
+				leave_round(player_name)
+			}
+			pay(amount){
+				this.money += amount
+			}
+			get_priv_coins(){
+				return this.priv_coins
+			}
+		}
+		class user extends player{
+			constructor(name,money){
+				super(name,money)
+			}
+			buyin_pay(buyin_cost){
+				if (this.money > buyin_cost){
+					this.money = this.money - buyin_cost
+					update_status("Paid")
+					
+				}
+				else{
+					//Player leave table
+					alert("Start a new game to get your money back!")
+					quit_game()
+				}
+			}
+			gamble(curr_bet){
+				console.log(filer)
+			}	
+			bet(amount){
+				if (this.money > amount){
+					this.money-=amount
+					update_status("Bet")
+				}else{
+					alert("Start a new game to get your money back!")
+					quit_game()
+				}
+			}
+		}
+		class bot extends player{
+			constructor(name,money,difficulty){
+				super(name,money)
+				this.difficulty = difficulty
 			}
 			gamble(curr_bet){
 				let risk_lvl = Math.floor(difficulty*10)
 				this.difficulty = Math.random()
 				if (this.priv_coins === "hh" ||this.priv_coins === "tt"){
 					if (money > curr_bet){
-						return "bet"
+						this.money-=curr_bet
+						update_status("Bet")
 					}
 				}else{
 					if (risk_lvl < 5) {
-						return "fold";
+						fold(this.name)
+						update_status("Folded")
 					} else {
-						if (money >curr_bet){
-							return "bet";
+						if (money > curr_bet){
+							this.money-=curr_bet
+							update_status("Bet")
 						}else{
-							return "fold";
+							fold(this.name)
+							update_status("Fold")
 						}
 					}
 				}	
@@ -71,9 +129,6 @@
 					alert(`${this.name} ran out of money and left the table`)
 				}
 			}	
-		}
-		function bot_leave_anim(){
-			console.log("filler")
 		}
 
         function Coin_Flip(count){
@@ -110,7 +165,7 @@
 			return shuffled.slice(0, num_of_names);
 		}
 
-		function start_game(player_count,buyin_cost){
+		function start_game(bot_count,buyin_cost){
 			//fix me
 			if (localStorage.getItem('Money') === null){
 				console.log("Money reset to default amount")
@@ -123,19 +178,18 @@
 			else{
 				console.log(localStorage.getItem('Money'))
 			}
-			let player_money = localStorage.getItem('Money')
-			if (localStorage.getItem('Money')> buyin_cost){
-				localStorage.setItem('Money',player_money - buyin_cost) 
-				console.log(localStorage.getItem('Money'))
-			}
-			bot_names = name_gen(player_count)
-			let bot_list = []
-			console.log(player_count)
-			for (let i = 0; i < player_count; i++){
+			
+			bot_names = name_gen(bot_count)
+			let player_list = []
+			console.log(bot_count)
+			for (let i = 0; i < bot_count; i++){
 				let temp_bot = new bot(bot_names[i],200,Math.random())
-				bot_list.push(temp_bot)
+				player_list.push(temp_bot)
 			}
-			return bot_list	
+			let temp_user = new user("you",localStorage.getItem('Money'))
+			localStorage.setItem("you", temp_user);
+			player_list.push(temp_user)
+			return player_list	
 		}
 		function quit_game(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -147,7 +201,7 @@
 			console.log(tails_count)
 			console.log(heads_count)
 			if (heads_count === tails_count){
-				return "split"
+				return "Split"
 			}else if (heads_count === 4|| tails_count ===4){
 				return "Quad"
 			} else if (heads_count === 5|| tails_count === 5){
@@ -175,15 +229,20 @@
 			});
 		}
 		function gamble(players){
-			const bet_amount = floor(Math.random()*10)
+			const bet_amount = Math.floor(Math.random()*10)
 			players.forEach(element => {
 				bot_instance.gamble(bet_amount)
 			}); 
-
 		}
-		function pay()
+		function leave_round(player){
+			document.getElementById(`${player}_name`).style.opacity = 0.5;
+			document.getElementById(`${player}_action`).textContent = "Folded"
+		}
+
 		function draw_main_menu(){
 			understand_rules.style.display = 'none';
+			fold.style.display = 'none';
+			bet.style.display= 'none';
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			const backgroundImage = new Image();
     		backgroundImage.src = 'assets/menu.png';
@@ -191,6 +250,7 @@
 				ctx.drawImage(backgroundImage,0, 0, canvas.width, canvas.height );
 			};
 		}
+
 		function draw_rules_popup(){
 			// Done i think
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -228,8 +288,9 @@
 
 		}
 
-		function draw_game(){
+		function draw_game(player_list,priv_coins,public_coins){
 			// MAjor work needed
+			console.log("drawing")
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			start_button.style.display = 'none';
 			quit_button.style.display = 'none';
@@ -242,42 +303,128 @@
 			payin_coins.onload = function() {
 				ctx.drawImage(payin_coins,0, 0, canvas.width, canvas.height );
 			};
-			// Need to add coin counter in top left
-			// Need to add bet counter
-			// Best hand atm thing (to make it easier for new players)
-			console.log(" drawn")
+			// Need to add coin counter below player name for  all bots and players
+			// Add priv and communtiy coins using (assets.Heads/png) and having a square around only add when flipped
+			// Need to add names for all bots and players
+			// add actions underneath for all bots and players (won, lost, folded, bet etc)
+			//
+			ctx.font = '20px Pixelify Sans';
+			ctx.fillStyle = '#f7ba47';
+			ctx.textAlign = 'center';
+			const positions = [
+				{ x: canvas.width / 2, y: 40 },
+				{ x: canvas.width - 80, y: canvas.height / 2 },
+				{ x: 80, y: canvas.height / 2 },
+				{ x: canvas.width / 2, y: canvas.height - 60 }
+			];
+			player_list.forEach((element,i) => {
+				let pos = positions[i]
+				ctx.font = '20px Pixelify Sans';
+				ctx.fillStyle = '#f7ba47';
+				ctx.textAlign = 'center';
+
+				ctx.fillText(element.get_name(), pos.x, pos.y);
+				ctx.fillText(`Money: ${element.get_money()}`, pos.x, pos.y + 20);
+				ctx.fillText(element.get_status(), pos.x, pos.y + 40);
+			});
+			ctx.strokeStyle = '#ffffff'
+			ctx.lineWidth = 2
+			ctx.strokeRect((canvas.width - 700) / 2, (canvas.height-500) / 2, 700, 150)
+			ctx.textAlign = 'center';
+			ctx.fillStyle = '#ffffff'
+			ctx.fillText("Community Coins",canvas.width/ 2,380)
+			ctx.strokeRect((canvas.width - 400) / 2, 650, 400, 150)
+			ctx.textAlign = 'center';
+			ctx.fillStyle = '#ffffff'
+			ctx.fillText("Priv Coins",canvas.width/ 2,625)
+			if (priv_coins === "yes"){
+				user_ = player_list[3]
+				user_priv_coins = user_priv_coins()
+				const coinSize = 32
+				const spacing = 36
+				const x = canvas.width / 2 - (user_priv_coins.length * spacing) / 2
+				const y = canvas.height - 16
+				user_priv_coins.forEach(element => {
+					if (element === "h"){
+						img = new Image();
+						img.src = 'assets/heads.png';
+						ctx.drawImage(img,x + i * spacing, y)
+					}else{
+						img = new Image();
+						img.src = 'assets/tails.png';
+						ctx.drawImage(img,x + i * spacing, y)
+
+					}
+				});
+			}
+			if (public_coins =! "no"){
+				const coinSize = 32
+				const spacing = 36
+				const x = canvas.width / 2 - (user_priv_coins.length * spacing) / 2
+				const y = canvas.height - 16
+				public.forEach(element => {
+					if (element === "h"){
+						img = new Image();
+						img.src = 'assets/heads.png';
+						ctx.drawImage(img,x + i * spacing, y)
+					}else{
+						img = new Image();
+						img.src = 'assets/tails.png';
+						ctx.drawImage(img,x + i * spacing, y)
+
+					}
+				});
+			}
 
 		}
-		//function anim_flip(vaule,my_hand){
-		//	console.log(vaule)
-		//	if (vaule === own){
-		//		the
-		//	}
-		//}
+		function anim_flip(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#497425'
+			ctx.fillRect(0, 0, canvas.width, canvas.height); 
+			gifler('assets/coin.gif').get(animator => {
+				const ctx = canvas.getContext('2d');
+
+				// Calculate center offset
+				const offsetX = (canvas.width - 64) / 2;
+				const offsetY = (canvas.height - 64) / 2;
+
+				// Save current context state
+				ctx.save();
+				ctx.translate(offsetX, offsetY);
+
+				// Animate GIF starting from translated origin
+				animator.animateInCanvas(canvas);
+
+				// Restore context after animation setup (optional)
+				ctx.restore();
+			});
+
+
+
+			ctx.strokeStyle = "#FFFFFF";			
+			ctx.strokeRect(0, 0, 350, 400);
+
+			   
+		}
 		function game_loop(){
 			// game logic fix needed
 			const audio = new Audio('music/Get_After_It.ogg');
 			audio.play()
-			console.log(start_game(3,6))
-			console.log("test of game loop")
-			draw_game();
-			//	draw_game();
-			//	console.log("test2")
-			//}
-
+			let player_list = start_game(3,6)
+			draw_game(player_list,"no","no");
 			let my_hand = (Coin_Flip(2))
-			//anim_flip("my_hand")
+			anim_flip()
+			draw_game(player_list,"yes","no");
 			console.log(my_hand)
 			//betting function
+
 			const community_coins = Coin_Flip(4)
-			//anim flip community coins_first
-			console.log(community_coins)
+			anim_flip()
+			draw_game(player_list,"yes",community_coins);
 		}
 		window.onload = function(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			draw_main_menu()
-			
-
 		}
 
     </script>
