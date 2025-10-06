@@ -23,7 +23,7 @@ Gameplay Rules
 - The dealer flips 4 community coins.
 - Count your heads and tails and use your highest number.
 - All personal coins are revealed. The player with the best hand type wins. (If players tie on a hand, heads triumph over tails. If there is still a tie, the pot is split equally.)
-			
+# IF YOU ENCOUNTER ANY BUGS RELOAD THE ASSETS JUST BUG OUT AND I SPENT % HOURS PLUS FIXING INITIAL BUGS 
 Track: Get After It
 Music by https://www.fiftysounds.com
 
