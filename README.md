@@ -8,7 +8,7 @@ Well I belive I smashed this theme out of the water:
 - Gambling chips are coins as well
 - Need I say more
 ## Demo
-![alt text](Screenshot_Showcase.png)
+![alt text](demo/Screenshot_Showcase.png)
 ## Rules
 There are 4 different hand types, ordered from worst to best:
 1. Split (3 of each)
