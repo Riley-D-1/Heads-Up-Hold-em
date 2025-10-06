@@ -17,8 +17,8 @@
 		<button id="understand_rules" onclick="game_loop()">I understand all the rules and am ready to play</button>
 	</div>
 	<div id = "bet_buttons">
-		<button id="bet" onclick="handleUserBet()">Bet</button>
-		<button id="fold" onclick="handleUserFold()">Fold</button>
+		<button id="bet_button">Bet</button>
+		<button id="fold_button">Fold</button>
 	</div>
 	<script>
 		let you
@@ -47,9 +47,6 @@
 			update_status(status){
 				this.status = status
 			}
-			fold(player_name){
-				leave_round(player_name)
-			}
 			pay(amount){
 				this.money += amount
 			}
@@ -64,7 +61,7 @@
 			buyin_pay(buyin_cost){
 				if (this.money > buyin_cost){
 					this.money = this.money - buyin_cost
-					update_status("Paid")
+					this.status ="Paid Buyin"
 					
 				}
 				else{
@@ -73,13 +70,21 @@
 					quit_game()
 				}
 			}
-			gamble(curr_bet){
-				
-			}	
+			gamble(player_list,curr_bet){
+				bet_button.style.display = 'block';
+				fold_button.style.display = 'block';
+				bet_button.onclick = () => {
+					handle_bet(curr_bet, player_list);
+				};
+
+				fold_button.onclick = () => {
+					handle_fold(curr_bet, player_list);
+				};
+			}
 			bet(amount){
 				if (this.money > amount){
 					this.money-=amount
-					update_status("Bet")
+					this.status =`Bet ${amount}`
 				}else{
 					alert("Start a new game to get your money back!")
 					quit_game()
@@ -90,26 +95,32 @@
 			constructor(name,money,difficulty){
 				super(name,money)
 				this.difficulty = difficulty
+				this.status = "Loading";
 			}
 			gamble(curr_bet){
 				let risk_lvl = Math.floor(this.difficulty*10)
 				this.difficulty = Math.random()
+				
 				if (this.priv_coins === "hh" ||this.priv_coins === "tt"){
-					if (money > curr_bet){
+					if (this.money > curr_bet){
 						this.money-=curr_bet
-						update_status("Bet")
+						this.status =`Bet ${curr_bet}`
+					}
+					else{
+						fold(this.name)
+						this.status ="Folded"
 					}
 				}else{
-					if (risk_lvl < 5) {
+					if (risk_lvl < 3) {
 						fold(this.name)
-						update_status("Folded")
+						this.status ="Folded"
 					} else {
-						if (money > curr_bet){
+						if (this.money > curr_bet){
 							this.money-=curr_bet
-							update_status("Bet")
+							this.status = `Bet ${curr_bet}`
 						}else{
 							fold(this.name)
-							update_status("Fold")
+							this.status = "Folded"
 						}
 					}
 				}	
@@ -122,9 +133,10 @@
 					
 				}
 				else{
-					//KILL Bot instance and leave table
-					bot_leave_anim()
+					//KILL Bot instance and leave table 
 					clearInterval(); 
+					this.status = "No Money"
+					player_list = player_list.filter(p => p !== this);
 					alert(`${this.name} ran out of money and left the table`)
 				}
 			}	
@@ -144,22 +156,143 @@
 			}
 			return temp_flipped_coins
         }
-		function handleUserBet() {
-			if (you instanceof user) {
-				you.bet(currentBet);
-				you.update_status("Bet");
-				draw_game(player_list, "yes", community_coins); // re-render with updated status
-			}
+
+		function handle_bet(current_bet,player_list) {
+			you.bet(current_bet)
+			fold_button.style.display = 'none';
+			bet_button.style.display= 'none';
+			const community_coins = Coin_Flip(4)
+			anim_flip()
+			setTimeout(() => {
+				draw_game(player_list, "yes","yes",community_coins);
+			}, 2100);
+			let final_hands = []
+			let players_in = []
+			player_list.forEach(element => {
+				if (element.get_status() === "Folded"){
+					//do nothing 	
+				}	
+				else{
+					let personal_coins = element.get_priv_coins()
+					let combined = [...personal_coins, ...community_coins]
+					final_hands.push(hand_check(combined))
+					players_in.push(element)
+					console.log(combined)
+				}
+				});
+				console.log(players_in.length)
+				if (players_in.length < 1){
+					console.log("Tied Winners")
+					let best_hand = final_hands[0]
+					players_in.forEach((element,i) => {
+						const priv = element.get_priv_coins();
+						const combined = [...priv, ...community_coins];
+						const hand_value = hand_check(combined);
+					});
+					tie_break(players_in,current_bet*player_list.length+6*4)
+				}else if(players_in.length === 0){
+					console.log("No Winner")
+					win_screen("No",player_list)
+				
+				}else{
+					console.log("Winner",players_in[0])
+					win_screen(players_in[0],player_list)
+					players_in[0].pay(current_bet*player_list.length+6*4)
+					
+				}
 		}
 
-		function handleUserFold() {
-			if (you instanceof user) {
-				you.fold(you.get_name());
-				you.update_status("Folded");
-				draw_game(player_list, "yes", community_coins); // re-render with updated status
+		function handle_fold(current_bet,player_list) {
+			you.update_status("Folded")
+			fold_button.style.display = 'none';
+			bet_button.style.display= 'none';
+			const community_coins = Coin_Flip(4)
+			anim_flip()
+			setTimeout(() => {
+				draw_game(player_list, "yes","yes",community_coins);
+			}, 2100);
+			let final_hands = []
+			let players_in = []
+			player_list.forEach(element => {
+				if (element.get_status() === "Folded"){
+					//do nothing 	
+				}	
+				else{
+					let personal_coins = element.get_priv_coins()
+					let combined = [...personal_coins, ...community_coins]
+					final_hands.push(hand_check(combined))
+					players_in.push(element)
+
+				}
+				});
+				console.log(players_in.length)
+				if (players_in.length < 1){
+					console.log("Tied Winners")
+					let best_hand = final_hands[0]
+					players_in.forEach((element,i) => {
+						const priv = element.get_priv_coins();
+						const combined = [...priv, ...community_coins];
+						const hand_value = hand_check(combined);
+					});
+					tie_break(players_in,current_bet*player_list.length+6*4)
+				}else if(players_in.length === 0){
+					console.log("No Winner")
+					win_screen("No",player_list)
+				
+				}else{
+					console.log("Winner",players_in[0])
+					win_screen(players_in[0],player_list)
+					players_in[0].pay(current_bet*player_list.length+6*4)
+					
+				}
 			}
+		function win_screen(vaule,player_list){
+			setTimeout(() => {
+				console.log('test')
+				if (vaule !== "no"){
+					ctx.clearRect(0, 0, canvas.width, canvas.height)
+					ctx.fillStyle = '#497425'
+					ctx.fillRect(0, 0, canvas.width, canvas.height)
+					ctx.fillStyle = "#ffffff"
+					ctx.font = "bold 48px Pixelify Sans";
+					ctx.textAlign = "center";
+					ctx.fillText(`${vaule.name} wins the pot!`, canvas.width / 2, canvas.height / 2);
+					next_round(player_list)
+				}else{
+					ctx.clearRect(0, 0, canvas.width, canvas.height)
+					ctx.fillStyle = '#497425'
+					ctx.fillRect(0, 0, canvas.width, canvas.height)
+					ctx.fillStyle = "#ffffff"
+					ctx.font = "bold 48px Pixelify Sans";
+					ctx.textAlign = "center";
+					ctx.fillText(`Nobody wins`, canvas.width / 2, canvas.height / 2);
+					next_round(player_list)
+				}
+			},4100);
 		}
-	
+		function next_round(player_list){
+			setTimeout(() => {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				fold_button.style.display = 'none';
+				bet_button.style.display = 'none';
+
+				// Reset player statuses and flip new coins
+				player_list.forEach(player => {
+					player.update_status("Waiting");
+					player.flip_own_coins();
+				});
+
+				// Redraw game board with fresh private coins only
+				draw_game(player_list, "yes", "no");
+
+				// Animate coin flip and start betting after delay
+				anim_flip();
+				setTimeout(() => {
+					draw_game(player_list, "yes", "no");
+					gamble(player_list);
+				}, 2100);
+			},5100);
+		}
 		function name_gen(num_of_names){
 			// This one is done too
 			// got a big ass list of random names and put some  fun ones in 
@@ -181,6 +314,7 @@
 
 		function start_game(bot_count,buyin_cost){
 			//fix me
+			
 			if (localStorage.getItem('Money') === null){
 				console.log("Money reset to default amount")
 				localStorage.setItem("Money", 200);
@@ -205,69 +339,78 @@
 			player_list.push(temp_user)
 			return player_list	
 		}
+
 		function quit_game(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			window.location.href = 'index.html';
 		}
+
 		function hand_check(hand){
 			const heads_count = hand.filter(item => item === "h").length;
-			const tails_count = hand.filter(item => item === "t").length;
-			console.log(tails_count)
-			console.log(heads_count)
+			const tails_count = hand.filter(item => item === "t").length;	
 			if (heads_count === tails_count){
-				return "Split"
+				return 3 //"Split"
 			}else if (heads_count === 4|| tails_count ===4){
-				return "Quad"
+				return 4 //"Quad"
 			} else if (heads_count === 5|| tails_count === 5){
-				return "Five Frenzy"
+				return 5 //"Five Frenzy"
 			} else if (heads_count === 6||tails_count === 6 ){
-				return "Flipstorm"
+				return 6 //"Flipstorm"
 			}
 			else{
 				return "Error, not valid handtype just yet"
 			}
 		}
-		function tie_break(tied_players, pot) {
-			let max_heads = -1;
-			let final_winners = [];
 
-			tied_players.forEach(player => {
-				const heads = [...player.get_priv_coins(), ...community_coins]
-					.filter(c => c === "h").length;
+	function tie_break(tied_players, pot, community_coins) {
+		let max_heads = -1;
+		let final_winners = [];
 
-				if (heads > max_heads) {
-					max_heads = heads;
-					final_winners = [player];
-				} else if (heads === max_heads) {
-					final_winners.push(player);
-				}
-			});
-
-			// Split pot
-			const payout = pot / final_winners.length;
-			final_winners.forEach(p => p.pay(payout));
-			return final_winners;
+		tied_players.forEach(player => {
+			const priv = player.get_priv_coins()
+			const combined = [...priv, ...community_coins]
+			const heads_count = combined.filter(coin => coin === "h").length
+			if (heads_count > max_heads) {
+			max_heads = heads_count
+			final_winners = [player]
+			} else if (heads_count === max_heads) {
+			final_winners.push(player)
+			}
+		});
+		const split_pot = pot / final_winners.length;
+		final_winners.forEach(player => {
+			player.pay(split_pot)
+			console.log(`Tie-break winner: ${player.get_name()} receives ${split_pot}`)
+		});
+		if (final_winners.length === 1) {
+			win_screen(final_winners[0])
+		} else {
+			const names = final_winners.map(p => p.get_name()).join(", ")
+			win_screen(`Tie-break winners: ${names}`)
 		}
+		}
+
+
 
 		function gamble(players){
 			const bet_amount = Math.floor(Math.random()*10)
-		players.forEach(element => {
-			if (element instanceof bot) {
-				element.gamble(bet_amount);
-			}else{
-				you.gamble()
-			}
-		});
+			players.forEach(element => {
+				if (element instanceof bot) {
+					element.gamble(bet_amount);
+				}else{
+					you.gamble(players,bet_amount)
+				}
+			});
 		}
-		function leave_round(player){
-			document.getElementById(`${player}_name`).style.opacity = 0.5;
-			document.getElementById(`${player}_action`).textContent = "Folded"
+
+		function fold(player){
+			player.status = "Folded"
 		}
 
 		function draw_main_menu(){
 			understand_rules.style.display = 'none';
-			fold.style.display = 'none';
-			bet.style.display= 'none';
+			fold_button.style.display = 'none';
+			bet_button.style.display= 'none';
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			const backgroundImage = new Image();
     		backgroundImage.src = 'assets/menu.png';
@@ -313,21 +456,17 @@
 
 		}
 
-		function draw_game(player_list,priv_coins,community_coins){
-			// MAjor work needed
+		function draw_game(player_list,priv_coins,community_coins_check,community_coins){
+			// AI was used to help with postioning
 			console.log("drawing")
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			start_button.style.display = 'none';
 			quit_button.style.display = 'none';
 			understand_rules.style.display = 'none';
 			ctx.fillStyle = '#497425'
-			ctx.fillRect(0, 0, canvas.width, canvas.height); 
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.font = '20px Pixelify Sans'
 			ctx.fillStyle = '#f7ba47'
-			const payin_coins = "pixel_asets/payin_coins.png"
-			payin_coins.onload = function() {
-				ctx.drawImage(payin_coins,0, 0, canvas.width, canvas.height );
-			};
 			// Need to add coin counter below player name for  all bots and players
 			// Add priv and communtiy coins using (assets.Heads/png) and having a square around only add when flipped
 			// Need to add names for all bots and players
@@ -363,78 +502,52 @@
 			ctx.fillStyle = '#ffffff'
 			ctx.fillText("Priv Coins",canvas.width/ 2,625)
 			if (priv_coins === "yes") {
-				const userPlayer = you;
-				const coins = userPlayer.get_priv_coins();
-				console.log(coins)
-				const coinSize = 32;
-				const spacing = 36;
-				const x = canvas.width / 2 - (2 * spacing) / 2;
-				const y = 300;
+				const coins = you.get_priv_coins();
+				const coinSize = 128;
+				const spacing = 128;
+				const boxX = (canvas.width - 400) / 2;
+				const boxY = 650;
+				const boxWidth = 400;
+				const boxHeight = 150;
 
-				for (let i = 0; i < 2; i++) {
-					const coin = community_coins[i];
+				const x = boxX + (boxWidth - coins.length * spacing) / 2;
+				const y = boxY + (boxHeight - coinSize) / 2;
+
+				for (let i = 0; i < coins.length; i++) {
+					const coin = coins[i];
 					const img = new Image();
-					if (coin === "h") {
-						img.src = 'assets/heads.png';
-					} else {
-						img.src = 'assets/tails.png';
-					}
-					img.onload = function() {
+					img.src = coin === "h" ? 'assets/heads.png' : 'assets/tails.png';
+					img.onload = () => {
 						ctx.drawImage(img, x + i * spacing, y, coinSize, coinSize);
 					};
 				}
 			}
 
-			if (Array.isArray(community_coins)) {
-				const coinSize = 32;
-				const spacing = 36;
-				const x = canvas.width / 2 - (community_coins.length * spacing) / 2;
-				const y = canvas.height / 2 + 100;
+			if (community_coins_check === "yes") {
+			const coins = community_coins;
+			const coinSize = 128;
+			const spacing = 128;
+			const boxX = (canvas.width - 700) / 2;
+			const boxY = (canvas.height - 500) / 2;
+			const boxWidth = 700;
+			const boxHeight = 150;
 
-				for (let i = 0; i < community_coins.length; i++) {
-					const coin = community_coins[i];
-					const img = new Image();
-					if (coin === "h") {
-						img.src = 'assets/heads.png';
-					} else {
-						img.src = 'assets/tails.png';
-					}
-					img.onload = function() {
-						ctx.drawImage(img, x + i * spacing, y, coinSize, coinSize);
-					};
-				}
+			const x = boxX + (boxWidth - coins.length * spacing) / 2;
+			const y = boxY + (boxHeight - coinSize) / 2;
+
+			for (let i = 0; i < coins.length; i++) {
+				const coin = coins[i];
+				const img = new Image();
+				img.src = coin === "h" ? "assets/heads.png" : "assets/tails.png";
+				img.onload = () => {
+				ctx.drawImage(img, x + i * spacing, y, coinSize, coinSize);
+				};
 			}
-
-		}
-		function evaluate_hands(players, community_coins) {
-			const hand_ranks = {
-				"Split": 1,
-				"Quad": 2,
-				"Five Frenzy": 3,
-				"Flipstorm": 4
-			};
-			let best_rank = 0
-			let winners = []
-			players.forEach(player => {
-				const full_hand = [...player.get_priv_coins(), ...community_coins];
-				const hand_type = hand_check(full_hand);
-				const rank = hand_ranks[hand_type] || 0;
-
-				player.hand_type = hand_type;
-				player.rank = rank;
-
-				if (rank > best_rank) {
-					best_rank = rank;
-					winners = [player];
-				} else if (rank === best_rank) {
-					winners.push(player);
-				}
-			});
-			return winners;
+			}
 		}
 
 		function anim_flip() {
-			// AI WROTE MOST OF THIS cause even ai took forever to get right
+			// AI WROTE MOST OF THIS fucnction cause even ai took forever to get right
 			const canvas = document.getElementById("game_window");
 			const ctx = canvas.getContext("2d");
 
@@ -495,37 +608,27 @@
 			};
 		}
 
-
 		function game_loop(){
 			// game logic fix needed
-			const audio = new Audio('music/Get_After_It.ogg');
+			const audio = new Audio('music/Get_After_It.ogg')
 			audio.play()
 			let player_list = start_game(3,6)
-			draw_game(player_list,"no",["no"]);
+			player_list.forEach(player => {
+				player.buyin_pay(6)
+			});
+			draw_game(player_list,"no","no")
 			you.flip_own_coins()
+			player_list.forEach(element => {
+				element.flip_own_coins()
+			});
 			anim_flip()
 			setTimeout(() => {
-				draw_game(player_list, "yes", ["no"])
+				draw_game(player_list, "yes","no")
 				gamble(player_list)
-				const community_coins = Coin_Flip(4)
-				anim_flip()
-				setTimeout(() => {
-					draw_game(player_list, "yes", community_coins);
-					const pot = 24
-					let winners = evaluate_hands(player_list, community_coins);
-
-					if (winners.length > 1) {
-						winners = tie_break(winners, pot);
-					}
-
-					winners.forEach(w => {
-						console.log(`${w.get_name()} wins with ${w.hand_type}`);
-						w.update_status("Won");
-					});
-
-				}, 2100);
 			}, 2100);
+			
 		}
+
 		window.onload = function(){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			draw_main_menu()

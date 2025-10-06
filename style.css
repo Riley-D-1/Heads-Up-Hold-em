@@ -59,3 +59,33 @@ canvas{
   cursor: pointer;
 }
 
+#bet_button {
+  top: 85%;
+  position: absolute;
+  left: 75%;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 45px;
+  color: #f7ba47;
+  background-color: #497425;
+  border: none;
+  width: 150px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  cursor: pointer;
+}
+#fold_button{
+  top: 85%;
+  position: absolute;
+  left: 10%;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 45px;
+  color: #f7ba47;
+  background-color: #497425;
+  border: none;
+  width: 150px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  cursor: pointer;
+}
