@@ -1,6 +1,6 @@
 # Heads-Up-Hold-em
 A online gambling game (no real money ofc) that is a modified poker variant where coinflips are used instead. Skillful bluffing, betting and decisions will lead you to glory in coin flipping mayhem.
-#I AM BUGFIXING PLS WAIT AND REVIEW ME LATER TY
+# I AM BUGFIXING PLS WAIT AND REVIEW ME LATER TY
 ## Theme
 Well I belive I smashed this theme out of the water:
 - Gambling around coinflips
